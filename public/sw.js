@@ -1,18 +1,22 @@
-// Simple Service Worker to only enable PWA install functionality without caching
+let deferredPrompt;
 
-self.addEventListener("install", function(event) {
-    // Automatically activate the service worker after install
-    console.log("Service Worker installed");
-    self.skipWaiting();
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault(); // Prevent the default install prompt
+    deferredPrompt = e; // Save the event for later use
+    // Show your custom install button here
 });
 
-self.addEventListener("activate", function(event) {
-    console.log("Service Worker activated");
-    // Ensure the new service worker takes over immediately
-    event.waitUntil(self.clients.claim());
-});
-
-self.addEventListener("fetch", function(event) {
-    // Do nothing with fetch requests, no caching
-    console.log("Fetch event for:", event.request.url);
+// Example button click event to show the install prompt
+document.getElementById('installButton').addEventListener('click', () => {
+    if (deferredPrompt) {
+        deferredPrompt.prompt(); // Show the install prompt
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('User accepted the A2HS prompt');
+            } else {
+                console.log('User dismissed the A2HS prompt');
+            }
+            deferredPrompt = null; // Clear the deferred prompt
+        });
+    }
 });
