@@ -12,6 +12,7 @@
         "filament/notifications": "3.2.110",
         "filament/tables": "3.2.110",
         "jeffgreco13/filament-breezy": "^2.4",
+        "ladumor/laravel-pwa": "^0.0.4",
         "laravel/framework": "^11.9",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
