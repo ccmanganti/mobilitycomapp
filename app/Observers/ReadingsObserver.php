@@ -16,7 +16,7 @@ class ReadingsObserver
     public function created(Readings $readings): void
 {
     // Define tolerance percentage
-    $tolerance = 0.05; // 5% tolerance
+    $tolerance = 0.10; // 5% tolerance
     
     // Step 1: Find the glove by serial number
     $glove = Gloves::where('id', $readings->gloves_id)->first();
