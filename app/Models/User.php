@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Jeffgreco13\FilamentBreezy\Traits\TwoFactorAuthenticatable;
 
 use App\Models\Gloves;
+use App\Models\Subscription;
 
 // Other Imports
 use Spatie\Permission\Traits\HasRoles;
@@ -72,6 +73,11 @@ class User extends Authenticatable
     
         return $this->hasMany(Gloves::class);
     
+    }
+
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
     }
 
 }

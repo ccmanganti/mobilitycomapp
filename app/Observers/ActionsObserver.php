@@ -7,7 +7,9 @@ use App\Models\Gloves;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 use Filament\Notifications\Actions\Action;
-
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Http\Request; // Ensure you import the Request class
+use Illuminate\Support\Facades\Http;
 class ActionsObserver
 {
     /**
@@ -20,7 +22,16 @@ class ActionsObserver
 
         if ($glove && $glove->user) {
             $user = $glove->user; // Assuming the Glove model has a 'user' relationship
+            $subscriptionIds = $user->subscriptions->pluck('subscription_id')->toArray();
 
+        if (!empty($subscriptionIds)) {
+            // Call notification function
+            $this->sendNotification(
+                $subscriptionIds,
+                "New Item Created",
+                "An item '{$glove}' has been created."
+            );
+        }
             // Debug log for testing
             \Log::info('Observer triggered: Glove ID - ' . $glove->id . ' | User ID - ' . $user->id);
 
@@ -42,6 +53,31 @@ class ActionsObserver
             \Log::info('Observer triggered, but no glove or user found.');
         }
     }
+
+    public function sendNotification(array $subscriptionIds, string $title, string $message)
+    {
+        $appId = env('ONESIGNAL_APP_ID');
+        $apiKey = env('ONESIGNAL_REST_API_KEY');
+
+        $payload = [
+            'app_id' => $appId,
+            'target_channel' => 'push',
+            'headings' => ['en' => $title],
+            'contents' => ['en' => $message],
+            'include_subscription_ids' => $subscriptionIds,
+        ];
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Basic ' . $apiKey,
+            'accept' => 'application/json',
+            'content-type' => 'application/json',
+        ])->post('https://api.onesignal.com/notifications', $payload);
+
+        return $response->successful()
+            ? ['status' => 'success', 'data' => $response->json()]
+            : ['status' => 'error', 'data' => $response->json()];
+    }
+
 
     /**
      * Handle the Actions "updated" event.
